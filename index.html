@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Valdek Laur – tellimine</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Kalendrid ja lauamängud otse tegijalt. Telli ja saa kätte pakiautomaadist.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap">
+<style>
+/* Layout: kleepuv päis suure ostukorvinupuga; 2×2 tootekaardid täidavad arvutis ühe ekraani, telefonis üks veerg; ostukorv ja aitäh on eraldi vaated */
+:root{
+  --paper:#f5f5ef; --surface:#ffffff; --ink:#1b211e; --muted:#4a534e;
+  --line:#d9dbd0; --line-strong:#87928b; --photo:#e9eae1;
+  --pine:#3e5d3b; --pine-ink:#ffffff; --pine-soft:#e3e8dc;
+  --honey:#f0c048; --honey-ink:#2a2105;
+  --danger:#a3271c; --danger-soft:#fbeae7;
+  --chip:#ffffffee; --chip-ink:#1b211e; --shade:#0a0e0c99; --focus:#0b57d0;
+  --display:"Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+  --body:"Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+  --hdr:88px; --gap:20px; --r:14px; --banner:0px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#111513; --surface:#1a201d; --ink:#eef1ec; --muted:#b6bfb9;
+  --line:#343d38; --line-strong:#6f7b74; --photo:#242b27;
+  --pine:#a9c591; --pine-ink:#142010; --pine-soft:#25311f;
+  --honey:#f0c048; --honey-ink:#2a2105;
+  --danger:#ff8f80; --danger-soft:#3b1c18;
+  --chip:#1a201dee; --chip-ink:#eef1ec; --shade:#000000b3; --focus:#8ab4ff;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#111513; --surface:#1a201d; --ink:#eef1ec; --muted:#b6bfb9;
+  --line:#343d38; --line-strong:#6f7b74; --photo:#242b27;
+  --pine:#a9c591; --pine-ink:#142010; --pine-soft:#25311f;
+  --honey:#f0c048; --honey-ink:#2a2105;
+  --danger:#ff8f80; --danger-soft:#3b1c18;
+  --chip:#1a201dee; --chip-ink:#eef1ec; --shade:#000000b3; --focus:#8ab4ff;
+  color-scheme:dark}
+
+*,*::before,*::after{box-sizing:border-box}
+b,strong,th,optgroup{font-weight:400}
+[hidden]{display:none!important}
+html{font-size:clamp(18px, 0.55vw + 15px, 21px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+html.lock, html.lock body{overflow:hidden}
+img{max-width:100%;display:block}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;letter-spacing:-.015em;line-height:1.2;text-wrap:balance;margin:0}
+.wrap{max-width:1440px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Päis */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:var(--hdr);padding-block:10px}
+.brand{display:flex;flex-direction:column;min-width:0;text-decoration:none;color:inherit}
+.brand-name{font-family:var(--display);font-weight:700;font-size:1.65rem;line-height:1.1;letter-spacing:-.01em}
+.brand-tag{color:var(--muted);font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-btn{display:inline-flex;align-items:center;gap:12px;min-height:60px;padding:0 20px 0 16px;border:0;border-radius:12px;background:var(--pine);color:var(--pine-ink);font-weight:400;font-size:1.15rem;cursor:pointer;flex:none}
+.cart-btn svg{width:30px;height:30px;flex:none}
+.cart-sum{font-weight:400;font-variant-numeric:tabular-nums}
+.badge{min-width:34px;height:34px;padding:0 9px;border-radius:17px;background:var(--honey);color:var(--honey-ink);display:inline-grid;place-items:center;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.badge.bump{animation:bump .5s ease}
+@keyframes bump{30%{transform:scale(1.35)}}
+@media (max-width:560px){.brand-tag{display:none}.brand-name{font-size:1.4rem}.cart-sum{display:none}.cart-btn{padding:0 14px}}
+
+.demo-note{margin:16px 0 0;padding:12px 16px;border-radius:12px;background:var(--honey);color:var(--honey-ink);font-size:.95rem}
+body.demo{--banner:70px}
+
+/* Tootekaardid */
+main{padding-block:var(--gap) 48px}
+.grid{display:grid;gap:var(--gap);grid-template-columns:minmax(0,1fr)}
+@media (min-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;min-width:0}
+.card-photo{position:relative;aspect-ratio:4/3;max-width:100%;background:var(--photo);flex:none}
+.photo-open{display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.photo-open img,.noimg{width:100%;height:100%;object-fit:cover}
+.noimg{display:grid;place-items:center;color:var(--muted)}
+.card-body{display:flex;flex-direction:column;gap:12px;padding:20px 22px 22px;flex:1;min-width:0}
+.card-title{font-size:1.5rem;font-weight:700;letter-spacing:-.01em}
+.card-desc{margin:0;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.more{align-self:flex-start;min-height:44px;padding:0;border:0;background:none;color:var(--pine);font-size:1rem;font-weight:400;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.buyrow{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px 16px;flex-wrap:wrap}
+.price{font-size:1.65rem;font-weight:400;font-variant-numeric:tabular-nums;line-height:1.1}
+.price small{display:block;font-size:.85rem;font-weight:400;color:var(--muted)}
+.qty-label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
+@media (min-width:1100px){
+  /* 4 kaarti mahuvad korraga ekraanile; rida kasvab, kui sisu vajab rohkem ruumi */
+  .grid{grid-auto-rows:minmax(max(350px, calc((100vh - var(--hdr) - var(--banner) - var(--gap)*3) / 2)), auto);
+        grid-auto-rows:minmax(max(350px, calc((100dvh - var(--hdr) - var(--banner) - var(--gap)*3) / 2)), auto)}
+  .card{flex-direction:row}
+  .card-photo{flex:0 0 44%;aspect-ratio:auto}
+  .photo-open{position:absolute;inset:0}
+  .card-body{padding:20px 24px;gap:10px}
+  .card-desc{-webkit-line-clamp:2}
+  .more{min-height:40px}
+  .card .btn-order{min-height:56px}
+}
+
+/* Kogus +/- */
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface)}
+.stepper button{width:56px;height:56px;border:0;border-radius:10px;background:transparent;font-size:1.9rem;line-height:1;cursor:pointer;display:grid;place-items:center}
+.stepper button:hover:not(:disabled){background:var(--pine-soft)}
+.stepper button:disabled{opacity:.35;cursor:default}
+.stepper output{min-width:3.4ch;text-align:center;font-size:1.35rem;font-weight:400;font-variant-numeric:tabular-nums}
+
+/* Nupud */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:60px;padding:0 28px;border:2px solid transparent;border-radius:12px;font-weight:400;font-size:1.2rem;line-height:1.15;text-align:center;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--pine);color:var(--pine-ink)}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent;border-color:var(--pine);color:var(--pine)}
+.btn:disabled{opacity:.6;cursor:progress}
+.btn.btn-order{width:100%;background:var(--pine-soft);color:var(--pine);border:1px solid var(--pine);transition:background-color .15s,color .15s}
+.btn.btn-order:hover{background:var(--pine);color:var(--pine-ink)}
+.btn.btn-order.added{background:var(--honey);border-color:var(--honey);color:var(--honey-ink)}
+
+/* Pildi nooled */
+.pnav{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;border:0;background:var(--chip);color:var(--chip-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 10px #0003}
+.pnav svg{width:26px;height:26px}
+.pnav.prev{left:10px}.pnav.next{right:10px}
+.pcount{position:absolute;left:10px;bottom:10px;padding:4px 12px;border-radius:999px;background:var(--chip);color:var(--chip-ink);font-size:.9rem;font-weight:400;font-variant-numeric:tabular-nums;pointer-events:none}
+
+/* Laadimine */
+.skel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-height:380px;position:relative;overflow:hidden}
+.skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--photo),transparent);animation:sh 1.4s infinite}
+@keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.msg{grid-column:1/-1;padding:40px 24px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:16px}
+
+/* Toote detailvaade */
+.overlay{position:fixed;inset:0;z-index:50;background:var(--shade);display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--surface);border-radius:18px;width:min(1200px,100%);max-height:100%;overflow:auto;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);overscroll-behavior:contain}
+.sheet-bar{grid-column:1/-1;position:sticky;top:0;z-index:3;display:flex;justify-content:flex-end;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+.btn-close{min-height:56px;padding:0 20px;border-radius:12px;border:1px solid var(--line-strong);background:var(--surface);font-weight:400;font-size:1.1rem;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+.btn-close svg{width:22px;height:22px}
+.d-gallery{display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--photo);min-width:0}
+.d-main{position:relative;aspect-ratio:4/3;max-width:100%;border-radius:12px;overflow:hidden}
+.d-main img{width:100%;height:100%;object-fit:contain}
+.thumbs{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px}
+.thumbs button{flex:0 0 78px;height:78px;padding:0;border-radius:10px;overflow:hidden;border:3px solid transparent;background:var(--surface);cursor:pointer;opacity:.75}
+.thumbs button img{width:100%;height:100%;object-fit:cover}
+.thumbs button[aria-current="true"]{border-color:var(--pine);opacity:1}
+.d-info{display:flex;flex-direction:column;gap:18px;padding:28px;min-width:0}
+.d-info h2{font-size:2rem;font-weight:700}
+.d-desc{margin:0;white-space:pre-line;max-width:60ch}
+.d-info .buyrow{margin-top:8px}
+@media (max-width:899px){
+  .overlay{padding:0;align-items:stretch}
+  .sheet{grid-template-columns:minmax(0,1fr);border-radius:0;max-height:none;height:100%;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .sheet-bar{padding-top:calc(10px + env(safe-area-inset-top,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .d-info{padding:22px max(16px,env(safe-area-inset-left,0px)) 32px}
+  .d-info h2{font-size:1.7rem}
+}
+
+/* Ostukorv */
+.view-head{display:flex;flex-direction:column;gap:6px;padding-block:8px 20px}
+.view-head h1{font-size:2.1rem}
+.back{align-self:flex-start;min-height:52px;padding:0 4px;border:0;background:none;color:var(--pine);font-weight:400;font-size:1.1rem;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.back svg{width:24px;height:24px}
+.cart-layout{display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:980px){.cart-layout{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start}}
+.cart-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.citem{display:grid;grid-template-columns:104px minmax(0,1fr);gap:16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.citem .cthumb,.citem .noimg{width:104px;height:104px;object-fit:cover;border-radius:10px;background:var(--photo)}
+.citem-main{display:flex;flex-direction:column;gap:8px;min-width:0}
+.citem-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.citem-top h3{font-size:1.3rem;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.lsum{font-weight:400;font-size:1.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.unit{margin:0;color:var(--muted)}
+.citem-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.remove{min-height:52px;padding:0 14px;border:2px solid transparent;border-radius:10px;background:none;color:var(--danger);font-weight:400;font-size:1.05rem;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.remove:hover{background:var(--danger-soft)}
+@media (max-width:480px){.citem{grid-template-columns:72px minmax(0,1fr)}.citem .cthumb,.citem .noimg{width:72px;height:72px}}
+.totals{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;margin:20px 0 0;padding:20px 22px;background:var(--pine-soft);border-radius:var(--r);font-size:1.15rem}
+.totals dt{margin:0}.totals dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.totals .grand{font-size:1.45rem;font-weight:400;padding-top:10px;border-top:1px solid var(--line-strong)}
+
+.order-form{display:flex;flex-direction:column;gap:20px;padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.order-form h2{font-size:1.6rem}
+.form-intro{margin:-10px 0 0;color:var(--muted)}
+.field label{display:block;font-weight:400;font-size:1.1rem;margin-bottom:6px}
+.hint{margin:0 0 8px;color:var(--muted);font-size:.95rem}
+.field input,.field textarea{width:100%;min-height:60px;padding:12px 16px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:1.2rem}
+.field textarea{min-height:96px;resize:vertical;line-height:1.4}
+.field input:focus,.field textarea:focus{border-color:var(--pine);outline:3px solid var(--pine-soft);outline-offset:0}
+.field.invalid input,.field.invalid textarea{border-color:var(--danger);background:var(--danger-soft)}
+.err{margin:8px 0 0;color:var(--danger);font-weight:400;font-size:1rem}
+.form-error{padding:14px 16px;border-radius:10px;background:var(--danger-soft);color:var(--danger);font-weight:400}
+.btn-submit{width:100%;min-height:68px;font-size:1.3rem}
+.after-note{margin:-6px 0 0;color:var(--muted);font-size:.95rem}
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:18px;padding:32px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);font-size:1.15rem}
+
+/* Aitäh */
+.done{max-width:760px;margin-inline:auto;display:flex;flex-direction:column;gap:22px;padding-top:12px}
+.done-mark{width:72px;height:72px;border-radius:50%;background:var(--pine);color:var(--pine-ink);display:grid;place-items:center}
+.done-mark svg{width:40px;height:40px}
+.done h1{font-size:2.1rem}
+.done-lead{margin:0;font-size:1.25rem}
+.paybox{padding:24px;border-radius:var(--r);background:var(--surface);border:1px solid var(--pine);display:flex;flex-direction:column;gap:14px}
+.paybox h2{font-size:1.5rem}
+.payrows{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px 18px;margin:0;align-items:center}
+.payrows dt{color:var(--muted)}
+.payrows dd{margin:0;font-weight:400;font-size:1.2rem;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.copy{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line-strong);background:var(--surface);font-weight:400;font-size:.95rem;cursor:pointer}
+.pay-note{margin:0}
+.done-items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.done-items li{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+@media (max-width:480px){.payrows{grid-template-columns:minmax(0,1fr)}.payrows dt{margin-top:6px}}
+
+/* Teade ja telefoni ostukorviriba */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:45;width:max-content;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:16px;padding:12px 12px 12px 20px;border-radius:14px;background:var(--ink);color:var(--paper);font-size:1.1rem;box-shadow:0 10px 30px #0004}
+.toast button{flex:none;min-height:52px;padding:0 18px;border:0;border-radius:10px;background:var(--honey);color:var(--honey-ink);font-weight:400;font-size:1.05rem;cursor:pointer}
+body.has-mbar .toast{bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px #0000001a}
+.mbar-info{font-size:1.05rem;line-height:1.25;font-variant-numeric:tabular-nums}
+.mbar-info strong{display:block;font-size:1.25rem}
+body.has-mbar main{padding-bottom:120px}
+@media (min-width:700px){.mbar{display:none!important}body.has-mbar main{padding-bottom:48px}body.has-mbar .toast{bottom:calc(24px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:480px){.toast{flex-direction:column;align-items:stretch;text-align:center}}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#" data-go="">
+      <span class="brand-name" id="storeName">Valdek Laur</span>
+      <span class="brand-tag" id="storeTag">Kalendrid ja lauamängud</span>
+    </a>
+    <button class="cart-btn" id="cartBtn" data-go="ostukorv" aria-label="Ava ostukorv">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2.5 3h2.8l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 7H6.2"/></svg>
+      <span>Ostukorv</span>
+      <span class="badge" id="cartCount">0</span>
+      <span class="cart-sum" id="cartSum" hidden></span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="demo-note" id="demoNote" hidden><strong>Näidisrežiim:</strong> tooted on näidised ja tellimusi ei salvestata. Päris poe jaoks ühendage Google Sheets (vt JUHEND).</p>
+
+  <!-- Toodete vaade -->
+  <section id="viewShop" aria-label="Tooted">
+    <div class="grid" id="grid" aria-live="polite"></div>
+  </section>
+
+  <!-- Ostukorvi vaade -->
+  <section id="viewCart" hidden>
+    <div class="view-head">
+      <button class="back" data-go=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Tagasi toodete juurde</button>
+      <h1 id="cartTitle" tabindex="-1">Ostukorv</h1>
+    </div>
+
+    <div class="empty" id="cartEmpty" hidden>
+      <p style="margin:0">Ostukorv on praegu tühi.</p>
+      <button class="btn primary" data-go="">Vaata tooteid</button>
+    </div>
+
+    <div class="cart-layout" id="cartFull">
+      <div>
+        <ul class="cart-list" id="cartList"></ul>
+        <dl class="totals" id="totals"></dl>
+      </div>
+
+      <form class="order-form" id="orderForm" novalidate>
+        <h2>Teie andmed</h2>
+        <p class="form-intro">Kõik väljad on vaja täita.</p>
+
+        <div class="field" id="wName">
+          <label for="fName">Nimi</label>
+          <input id="fName" name="name" autocomplete="name" maxlength="100" aria-describedby="eName">
+          <p class="err" id="eName" hidden></p>
+        </div>
+        <div class="field" id="wEmail">
+          <label for="fEmail">E-post</label>
+          <p class="hint" id="hEmail">Saadame siia tellimuse kinnituse ja makseandmed.</p>
+          <input id="fEmail" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" aria-describedby="hEmail eEmail">
+          <p class="err" id="eEmail" hidden></p>
+        </div>
+        <div class="field" id="wPhone">
+          <label for="fPhone">Telefon</label>
+          <p class="hint" id="hPhone">Pakiautomaadi kood saadetakse sellele numbrile.</p>
+          <input id="fPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="40" aria-describedby="hPhone ePhone">
+          <p class="err" id="ePhone" hidden></p>
+        </div>
+        <div class="field" id="wLocker">
+          <label for="fLocker">Pakiautomaat, kust soovite paki kätte saada</label>
+          <p class="hint" id="hLocker">Kirjutage pakiautomaadi nimi ja asukoht, näiteks: Omniva, Tartu Lõunakeskus.</p>
+          <textarea id="fLocker" name="locker" rows="3" maxlength="300" aria-describedby="hLocker eLocker"></textarea>
+          <p class="err" id="eLocker" hidden></p>
+        </div>
+
+        <div class="form-error" id="formError" role="alert" hidden></div>
+        <button class="btn primary btn-submit" id="submitBtn" type="submit">Saada tellimus</button>
+        <p class="after-note">Pärast tellimist saadame teie e-postile kinnituse ja makseandmed. Maksta saab pangaülekandega.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Aitäh vaade -->
+  <section id="viewDone" hidden>
+    <div class="done">
+      <div class="done-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h1 id="doneTitle" tabindex="-1">Aitäh! Tellimus on vastu võetud.</h1>
+      <p class="done-lead">Tellimuse number on <strong id="doneNo"></strong>.</p>
+      <div class="paybox">
+        <h2>Kuidas maksta</h2>
+        <dl class="payrows" id="payRows"></dl>
+        <p class="pay-note" id="payNote"></p>
+      </div>
+      <p class="done-lead" id="doneMail" style="font-size:1.1rem"></p>
+      <div>
+        <h2 style="font-size:1.4rem;margin-bottom:8px">Teie tellimus</h2>
+        <ul class="done-items" id="doneItems"></ul>
+        <p id="doneLocker" style="margin:14px 0 0"></p>
+      </div>
+      <button class="btn primary" data-go="" style="align-self:flex-start">Tagasi poodi</button>
+    </div>
+  </section>
+</main>
+
+<!-- Toote detailvaade -->
+<div class="overlay" id="detail" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="sheet-bar">
+      <button class="btn-close" id="dClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Sulge</button>
+    </div>
+    <div class="d-gallery">
+      <div class="d-main" id="dMain">
+        <img id="dImg" alt="">
+        <button class="pnav prev" data-dnav="-1" aria-label="Eelmine pilt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="pnav next" data-dnav="1" aria-label="Järgmine pilt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        <span class="pcount" id="dCount"></span>
+      </div>
+      <div class="thumbs" id="dThumbs" aria-label="Kõik pildid"></div>
+    </div>
+    <div class="d-info">
+      <h2 id="dTitle"></h2>
+      <p class="d-desc" id="dDesc"></p>
+      <div class="buyrow">
+        <div class="price" id="dPrice"></div>
+        <div>
+          <span class="qty-label" id="dQtyLabel">Kogus</span>
+          <div class="stepper" role="group" aria-labelledby="dQtyLabel">
+            <button type="button" data-dstep="-1" aria-label="Vähenda kogust">−</button>
+            <output id="dQty">1</output>
+            <button type="button" data-dstep="1" aria-label="Suurenda kogust">+</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-order" id="dAdd">Telli</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+  <span id="toastMsg"></span>
+  <button id="toastBtn" type="button"></button>
+</div>
+
+<div class="mbar" id="mbar" hidden>
+  <div class="mbar-info"><span id="mbarCount"></span><strong id="mbarSum"></strong></div>
+  <button class="btn primary" data-go="ostukorv">Ostukorvi</button>
+</div>
+
+<script src="config.js"></script>
+<script src="demo-data.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Abifunktsioonid ---------- */
+  var CFG = window.POOD_CONFIG || {};
+  var API = String(CFG.API_URL || '').trim();
+  var DEMO = !API;
+  var MAX_QTY = 99;
+  var eurFmt = new Intl.NumberFormat('et-EE', { style: 'currency', currency: 'EUR' });
+  function eur(n) { return eurFmt.format(Number(n) || 0); }
+  function num(v) { var n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isFinite(n) ? n : 0; }
+  function round2(n) { return Math.round(n * 100) / 100; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function $(id) { return document.getElementById(id); }
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  var ICON_PREV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  var ICON_NEXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+
+  // Pildid: Google Drive'i faili ID või täielik veebiaadress
+  function isUrl(ref) { return /^(https?:|data:|blob:)/.test(ref); }
+  function imgUrl(ref, w) { return isUrl(ref) ? ref : 'https://lh3.googleusercontent.com/d/' + encodeURIComponent(ref) + '=w' + (w || 1200); }
+  function imgTag(ref, w, alt, cls) {
+    if (!ref) return '<div class="noimg ' + (cls || '') + '" aria-hidden="true">Pilt puudub</div>';
+    return '<img src="' + esc(imgUrl(ref, w)) + '" data-ref="' + esc(ref) + '" data-w="' + w + '" alt="' + esc(alt || '') + '"' + (cls ? ' class="' + cls + '"' : '') + ' loading="lazy" decoding="async">';
+  }
+  // Kui üks Drive'i pildiaadress ei tööta, proovitakse teist
+  document.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && t.dataset.ref && !isUrl(t.dataset.ref) && !t.dataset.fb) {
+      t.dataset.fb = '1';
+      t.src = 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(t.dataset.ref) + '&sz=w' + (t.dataset.w || 1200);
+    }
+  }, true);
+
+  /* ---------- Olek ---------- */
+  var products = [];
+  var settings = { poe_nimi: 'Valdek Laur', tutvustus: '', saatmistasu: 0 };
+  var cart = store.get('vl_cart', []);
+  var cardQty = {}, cardImg = {};
+  var lastOrder = store.get('vl_last_order', null);
+  var view = 'shop', shopScroll = 0, loaded = false;
+  var detailId = null, detailIdx = 0, detailQty = 1, detailFromApp = false, lastFocus = null;
+
+  function findP(id) { for (var i = 0; i < products.length; i++) if (products[i].id === id) return products[i]; return null; }
+  function saveCart() { store.set('vl_cart', cart); }
+  function cartLines() {
+    var out = [];
+    cart.forEach(function (it) { var p = findP(it.id); if (p) out.push({ p: p, qty: it.qty, sum: round2(p.price * it.qty) }); });
+    return out;
+  }
+  function totals(lines) {
+    var sub = 0, count = 0;
+    lines.forEach(function (l) { sub += l.sum; count += l.qty; });
+    var ship = lines.length ? num(settings.saatmistasu) : 0;
+    return { sub: round2(sub), ship: ship, total: round2(sub + ship), count: count };
+  }
+
+  /* ---------- Andmete laadimine ---------- */
+  function normalize(list) {
+    return (list || []).map(function (p) {
+      return { id: String(p.id), title: p.title || '', description: p.description || '', price: num(p.price), images: (p.images || []).filter(Boolean), order: num(p.order), visible: p.visible !== false };
+    }).filter(function (p) { return p.visible; }).sort(function (a, b) { return a.order - b.order; });
+  }
+
+  function apply(data) {
+    products = normalize(data.products);
+    settings = Object.assign({}, settings, data.settings || {});
+    var before = cart.length;
+    cart = cart.filter(function (it) { return findP(it.id); });
+    if (cart.length !== before) saveCart();
+    loaded = true;
+    renderHeader();
+    renderGrid();
+    updateCartBits();
+    if (view === 'cart') renderCart();
+  }
+
+  function load() {
+    var cached = DEMO ? null : store.get('vl_catalog', null);
+    if (cached) apply(cached); else renderSkeleton();
+    var p = DEMO
+      ? Promise.resolve({ ok: true, products: window.DEMO_PRODUCTS || [], settings: window.DEMO_SETTINGS || {} })
+      : fetch(API + (API.indexOf('?') < 0 ? '?' : '&') + 'action=products&_=' + Date.now()).then(function (r) { return r.json(); });
+    p.then(function (data) {
+      if (!data || !data.ok) throw new Error((data && data.error) || 'Viga');
+      if (!DEMO) store.set('vl_catalog', { products: data.products, settings: data.settings });
+      apply(data);
+      route();
+    }).catch(function () {
+      if (!cached) renderLoadError();
+    });
+  }
+
+  /* ---------- Päis ja ostukorvi näitajad ---------- */
+  function renderHeader() {
+    var name = settings.poe_nimi || 'Valdek Laur';
+    $('storeName').textContent = name;
+    $('storeTag').textContent = settings.tutvustus || '';
+    $('storeTag').hidden = !settings.tutvustus;
+    document.title = name + ' – tellimine';
+  }
+
+  function updateCartBits(bump) {
+    var t = totals(cartLines());
+    $('cartCount').textContent = t.count;
+    $('cartSum').textContent = eur(t.total);
+    $('cartSum').hidden = !t.count;
+    $('cartBtn').setAttribute('aria-label', 'Ava ostukorv, ' + t.count + ' toodet');
+    $('mbarCount').textContent = t.count + (t.count === 1 ? ' toode ostukorvis' : ' toodet ostukorvis');
+    $('mbarSum').textContent = eur(t.total);
+    var showBar = view === 'shop' && t.count > 0;
+    $('mbar').hidden = !showBar;
+    document.body.classList.toggle('has-mbar', showBar);
+    if (bump) { var b = $('cartCount'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
+  }
+
+  /* ---------- Tootekaardid ---------- */
+  function stepperHTML(attr, id, val, labelId) {
+    return '<div class="stepper" role="group" aria-labelledby="' + labelId + '">' +
+      '<button type="button" ' + attr + '="-1" data-pid="' + esc(id) + '" aria-label="Vähenda kogust"' + (val <= 1 ? ' disabled' : '') + '>−</button>' +
+      '<output>' + val + '</output>' +
+      '<button type="button" ' + attr + '="1" data-pid="' + esc(id) + '" aria-label="Suurenda kogust"' + (val >= MAX_QTY ? ' disabled' : '') + '>+</button></div>';
+  }
+
+  function cardHTML(p, n) {
+    var i = cardImg[p.id] || 0, q = cardQty[p.id] || 1, many = p.images.length > 1;
+    return '<article class="card" data-id="' + esc(p.id) + '">' +
+      '<div class="card-photo">' +
+        '<button class="photo-open" data-open="' + esc(p.id) + '" aria-label="Vaata lähemalt: ' + esc(p.title) + '">' + imgTag(p.images[i], 900, p.title) + '</button>' +
+        (many ? '<button class="pnav prev" data-nav="-1" data-pid="' + esc(p.id) + '" aria-label="Eelmine pilt">' + ICON_PREV + '</button>' +
+                '<button class="pnav next" data-nav="1" data-pid="' + esc(p.id) + '" aria-label="Järgmine pilt">' + ICON_NEXT + '</button>' +
+                '<span class="pcount">' + (i + 1) + ' / ' + p.images.length + '</span>' : '') +
+      '</div>' +
+      '<div class="card-body">' +
+        '<h2 class="card-title">' + esc(p.title) + '</h2>' +
+        (p.description ? '<p class="card-desc">' + esc(p.description) + '</p>' : '') +
+        '<button class="more" data-open="' + esc(p.id) + '">' + (many ? 'Loe lähemalt ja vaata pilte (' + p.images.length + ')' : 'Loe lähemalt') + '</button>' +
+        '<div class="buyrow">' +
+          '<div class="price">' + eur(p.price) + '<small>tk</small></div>' +
+          '<div><span class="qty-label" id="ql' + n + '">Kogus</span>' + stepperHTML('data-step', p.id, q, 'ql' + n) + '</div>' +
+        '</div>' +
+        '<button class="btn btn-order" data-add="' + esc(p.id) + '">Telli</button>' +
+      '</div></article>';
+  }
+
+  function renderGrid() {
+    var g = $('grid');
+    if (!products.length) {
+      g.innerHTML = '<div class="msg"><h2>Tooteid veel ei ole</h2><p style="margin:0">Palun vaadake hiljem uuesti.</p></div>';
+      return;
+    }
+    g.innerHTML = products.map(cardHTML).join('');
+  }
+  function renderSkeleton() { $('grid').innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>'; }
+  function renderLoadError() {
+    $('grid').innerHTML = '<div class="msg"><h2>Tooteid ei õnnestunud laadida</h2><p style="margin:0">Kontrollige internetiühendust ja proovige uuesti.</p><button class="btn primary" id="retryBtn">Proovi uuesti</button></div>';
+    $('retryBtn').onclick = function () { renderSkeleton(); load(); };
+  }
+
+  function setCardImg(id, dir) {
+    var p = findP(id); if (!p || p.images.length < 2) return;
+    var i = ((cardImg[id] || 0) + dir + p.images.length) % p.images.length;
+    cardImg[id] = i;
+    var card = document.querySelector('.card[data-id="' + cssEsc(id) + '"]');
+    if (!card) return;
+    card.querySelector('.photo-open').innerHTML = imgTag(p.images[i], 900, p.title);
+    card.querySelector('.pcount').textContent = (i + 1) + ' / ' + p.images.length;
+  }
+  function cssEsc(s) { return window.CSS && CSS.escape ? CSS.escape(s) : String(s).replace(/["\\]/g, '\\$&'); }
+
+  function setStepper(stepper, val) {
+    stepper.querySelector('output').textContent = val;
+    var b = stepper.querySelectorAll('button');
+    b[0].disabled = val <= 1; b[1].disabled = val >= MAX_QTY;
+  }
+
+  /* ---------- Ostukorvi lisamine ---------- */
+  function addToCart(id, qty, btn) {
+    var p = findP(id); if (!p) return;
+    var it = null;
+    cart.forEach(function (x) { if (x.id === id) it = x; });
+    if (it) it.qty = Math.min(MAX_QTY, it.qty + qty); else cart.push({ id: id, qty: qty });
+    saveCart();
+    updateCartBits(true);
+    if (btn) {
+      btn.classList.add('added'); btn.textContent = '✓ Lisatud ostukorvi';
+      setTimeout(function () { btn.classList.remove('added'); btn.textContent = 'Telli'; }, 1800);
+    }
+    toast(p.title + ' (' + qty + ' tk) lisati ostukorvi.', 'Vaata ostukorvi', function () { go('ostukorv'); });
+  }
+
+  var toastTimer;
+  function toast(msg, label, action) {
+    $('toastMsg').textContent = msg;
+    var b = $('toastBtn');
+    b.hidden = !label;
+    if (label) { b.textContent = label; b.onclick = function () { hideToast(); action(); }; }
+    $('toast').hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 6500);
+  }
+  function hideToast() { $('toast').hidden = true; }
+
+  /* ---------- Toote detailvaade ---------- */
+  function openDetail(id) {
+    var p = findP(id); if (!p) { if (loaded) go(''); return; }
+    if (!$('detail').hidden && detailId === id) return;
+    lastFocus = document.activeElement;
+    detailId = id; detailIdx = cardImg[id] || 0; detailQty = 1;
+    $('dTitle').textContent = p.title;
+    $('dDesc').textContent = p.description;
+    $('dPrice').innerHTML = eur(p.price) + '<small>tk</small>';
+    setStepper($('dQty').parentNode, 1);
+    var many = p.images.length > 1;
+    document.querySelectorAll('[data-dnav]').forEach(function (b) { b.hidden = !many; });
+    $('dCount').hidden = !many;
+    $('dThumbs').hidden = !many;
+    $('dThumbs').innerHTML = many ? p.images.map(function (ref, i) {
+      return '<button type="button" data-thumb="' + i + '" aria-label="Pilt ' + (i + 1) + '">' + imgTag(ref, 200, '') + '</button>';
+    }).join('') : '';
+    showDetailImg();
+    $('detail').hidden = false;
+    document.documentElement.classList.add('lock');
+    $('detail').querySelector('.sheet').scrollTop = 0;
+    $('dClose').focus();
+  }
+  function showDetailImg() {
+    var p = findP(detailId); if (!p) return;
+    var ref = p.images[detailIdx], img = $('dImg');
+    img.dataset.fb = '';
+    if (ref) { img.src = imgUrl(ref, 1600); img.dataset.ref = ref; img.dataset.w = 1600; img.alt = p.title + ', pilt ' + (detailIdx + 1); img.hidden = false; }
+    else img.hidden = true;
+    $('dCount').textContent = (detailIdx + 1) + ' / ' + p.images.length;
+    document.querySelectorAll('#dThumbs button').forEach(function (b, i) {
+      b.setAttribute('aria-current', i === detailIdx ? 'true' : 'false');
+      if (i === detailIdx && b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    });
+  }
+  function moveDetail(dir) {
+    var p = findP(detailId); if (!p || p.images.length < 2) return;
+    detailIdx = (detailIdx + dir + p.images.length) % p.images.length;
+    showDetailImg();
+  }
+  function closeDetail() {
+    if ($('detail').hidden) return;
+    $('detail').hidden = true;
+    document.documentElement.classList.remove('lock');
+    detailId = null;
+    if (lastFocus && lastFocus.focus) try { lastFocus.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function requestCloseDetail() {
+    if (detailFromApp) { detailFromApp = false; history.back(); } else go('');
+  }
+
+  /* ---------- Ostukorv ---------- */
+  function renderCart() {
+    var lines = cartLines();
+    $('cartEmpty').hidden = lines.length > 0;
+    $('cartFull').hidden = !lines.length;
+    if (!lines.length) return;
+    $('cartList').innerHTML = lines.map(function (l, n) {
+      return '<li class="citem" data-pid="' + esc(l.p.id) + '">' + imgTag(l.p.images[0], 240, '', 'cthumb') +
+        '<div class="citem-main"><div class="citem-top"><h3>' + esc(l.p.title) + '</h3><span class="lsum">' + eur(l.sum) + '</span></div>' +
+        '<p class="unit">' + eur(l.p.price) + ' / tk</p>' +
+        '<div class="citem-row"><div><span class="qty-label" id="cq' + n + '">Kogus</span>' + stepperHTML('data-cstep', l.p.id, l.qty, 'cq' + n) + '</div>' +
+        '<button type="button" class="remove" data-remove="' + esc(l.p.id) + '">Eemalda</button></div></div></li>';
+    }).join('');
+    renderTotals();
+  }
+  function renderTotals() {
+    var lines = cartLines(), t = totals(lines);
+    $('totals').innerHTML =
+      '<dt>Tooted kokku</dt><dd>' + eur(t.sub) + '</dd>' +
+      '<dt>Saatmine pakiautomaati</dt><dd>' + (t.ship ? eur(t.ship) : 'tasuta') + '</dd>' +
+      '<dt class="grand">Kokku tasuda</dt><dd class="grand">' + eur(t.total) + '</dd>';
+    $('submitBtn').textContent = 'Saada tellimus · ' + eur(t.total);
+    lines.forEach(function (l) {
+      var li = document.querySelector('.citem[data-pid="' + cssEsc(l.p.id) + '"]');
+      if (li) li.querySelector('.lsum').textContent = eur(l.sum);
+    });
+    updateCartBits();
+  }
+  function changeCartQty(id, dir, stepper) {
+    cart.forEach(function (x) { if (x.id === id) { x.qty = Math.max(1, Math.min(MAX_QTY, x.qty + dir)); setStepper(stepper, x.qty); } });
+    saveCart(); renderTotals();
+  }
+  function removeFromCart(id) {
+    var idx = -1, removed;
+    cart.forEach(function (x, i) { if (x.id === id) idx = i; });
+    if (idx < 0) return;
+    removed = cart.splice(idx, 1)[0];
+    saveCart(); renderCart(); updateCartBits();
+    var p = findP(id);
+    toast((p ? p.title : 'Toode') + ' eemaldati ostukorvist.', 'Võta tagasi', function () {
+      cart.splice(Math.min(idx, cart.length), 0, removed); saveCart(); renderCart(); updateCartBits();
+    });
+  }
+
+  /* ---------- Kontaktvorm ---------- */
+  var FIELDS = { name: 'Name', email: 'Email', phone: 'Phone', locker: 'Locker' };
+  function formValues() {
+    var v = {};
+    Object.keys(FIELDS).forEach(function (k) { v[k] = $('f' + FIELDS[k]).value.trim(); });
+    return v;
+  }
+  (function restoreContact() {
+    var c = store.get('vl_contact', null);
+    if (c) Object.keys(FIELDS).forEach(function (k) { if (c[k]) $('f' + FIELDS[k]).value = c[k]; });
+  })();
+  $('orderForm').addEventListener('input', function (e) {
+    store.set('vl_contact', formValues());
+    var w = e.target.closest('.field');
+    if (w && w.classList.contains('invalid')) { w.classList.remove('invalid'); w.querySelector('.err').hidden = true; e.target.removeAttribute('aria-invalid'); }
+  });
+  function validate() {
+    var v = formValues(), errs = {};
+    if (v.name.length < 2) errs.name = 'Palun kirjutage oma nimi.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email)) errs.email = 'Palun kontrollige e-posti aadressi. See peaks olema kujul nimi@post.ee';
+    if ((v.phone.match(/\d/g) || []).length < 7) errs.phone = 'Palun kirjutage telefoninumber, näiteks 5123 4567.';
+    if (v.locker.length < 3) errs.locker = 'Palun kirjutage, millisesse pakiautomaati pakk saata.';
+    var first = null;
+    Object.keys(FIELDS).forEach(function (k) {
+      var key = FIELDS[k], w = $('w' + key), e = $('e' + key), inp = $('f' + key);
+      if (errs[k]) {
+        w.classList.add('invalid'); e.textContent = errs[k]; e.hidden = false; inp.setAttribute('aria-invalid', 'true');
+        if (!first) first = inp;
+      } else { w.classList.remove('invalid'); e.hidden = true; inp.removeAttribute('aria-invalid'); }
+    });
+    if (first) { first.focus(); first.scrollIntoView({ block: 'center' }); return null; }
+    return v;
+  }
+
+  var busy = false;
+  $('orderForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (busy) return;
+    var lines = cartLines();
+    if (!lines.length) return;
+    var v = validate();
+    if (!v) return;
+    var btn = $('submitBtn'), fe = $('formError');
+    busy = true; btn.disabled = true; btn.textContent = 'Saadan tellimust…'; fe.hidden = true;
+    var token = store.get('vl_token', null);
+    if (!token) { token = Date.now().toString(36) + Math.random().toString(36).slice(2, 10); store.set('vl_token', token); }
+    var t = totals(lines);
+    var req;
+    if (DEMO) {
+      req = new Promise(function (res) {
+        setTimeout(function () {
+          res({ ok: true, demo: true, orderNo: 'NÄIDIS', emailSent: false,
+            lines: lines.map(function (l) { return { title: l.p.title, qty: l.qty, price: l.p.price, sum: l.sum }; }),
+            subtotal: t.sub, shipping: t.ship, total: t.total,
+            payment: { recipient: settings.saaja_nimi, iban: settings.iban, reference: 'Tellimus NÄIDIS', days: settings.makse_tahtaeg_paevi, info: settings.makse_lisainfo } });
+        }, 900);
+      });
+    } else {
+      req = fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'order', token: token, customer: v, items: lines.map(function (l) { return { id: l.p.id, qty: l.qty }; }) })
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (!res.ok) { var err = new Error(res.error || ''); err.fromServer = true; throw err; }
+        return res;
+      });
+    }
+    req.then(function (res) {
+      lastOrder = Object.assign({}, res, { name: v.name, email: v.email, locker: v.locker });
+      store.set('vl_last_order', lastOrder);
+      store.del('vl_token');
+      cart = []; saveCart(); updateCartBits();
+      go('aitah');
+    }).catch(function (err) {
+      fe.textContent = (err && err.fromServer && err.message ? err.message + ' ' : 'Tellimust ei õnnestunud saata. ') +
+        'Teie ostukorv on alles. Kontrollige internetiühendust ja vajutage uuesti „Saada tellimus“.';
+      fe.hidden = false;
+      fe.scrollIntoView({ block: 'center' });
+    }).then(function () {
+      busy = false; btn.disabled = false;
+      if (cart.length) renderTotals();
+    });
+  });
+
+  /* ---------- Aitäh ---------- */
+  function renderDone() {
+    var o = lastOrder, pay = o.payment || {};
+    var first = String(o.name || '').split(/\s+/)[0];
+    $('doneTitle').textContent = 'Aitäh' + (first ? ', ' + first : '') + '! Tellimus on vastu võetud.';
+    $('doneNo').textContent = o.orderNo;
+    var rows = [['Saaja', pay.recipient, false], ['Konto (IBAN)', pay.iban, true], ['Summa', eur(o.total), false], ['Selgitus', pay.reference, true]];
+    $('payRows').innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r) {
+      return '<dt>' + r[0] + '</dt><dd><span>' + esc(r[1]) + '</span>' + (r[2] ? '<button type="button" class="copy" data-copy="' + esc(r[1]) + '">Kopeeri</button>' : '') + '</dd>';
+    }).join('');
+    var days = parseInt(pay.days, 10);
+    $('payNote').textContent = (days ? 'Palume tasuda ' + days + ' päeva jooksul. ' : '') + (pay.info || '');
+    $('doneMail').textContent = o.demo ? 'Näidisrežiimis e-kirja ei saadeta.'
+      : o.emailSent ? 'Saatsime need andmed ka e-posti aadressile ' + o.email + '. Kui kirja ei paista, vaadake ka rämpsposti kausta.'
+      : 'Kinnituskirja saatmine ei õnnestunud, seega palun kirjutage makseandmed üles.';
+    var items = (o.lines || []).map(function (l) { return '<li><span>' + esc(l.title) + ' × ' + l.qty + '</span><span>' + eur(l.sum) + '</span></li>'; });
+    items.push('<li><span>Saatmine pakiautomaati</span><span>' + (o.shipping ? eur(o.shipping) : 'tasuta') + '</span></li>');
+    items.push('<li style="font-size:1.15rem"><span>Kokku</span><span>' + eur(o.total) + '</span></li>');
+    $('doneItems').innerHTML = items.join('');
+    $('doneLocker').textContent = o.locker ? 'Pakiautomaat: ' + o.locker : '';
+  }
+
+  function copyText(text, btn) {
+    function ok() { var old = btn.textContent; btn.textContent = '✓ Kopeeritud'; setTimeout(function () { btn.textContent = old; }, 1600); }
+    function fallback() {
+      var span = btn.previousElementSibling, r = document.createRange();
+      r.selectNodeContents(span); var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      try { if (document.execCommand('copy')) ok(); } catch (e) {}
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+    else fallback();
+  }
+
+  /* ---------- Vaated ja aadressirida ---------- */
+  function show(v) {
+    var prev = view;
+    if (prev === 'shop' && v !== 'shop') shopScroll = window.scrollY;
+    view = v;
+    $('viewShop').hidden = v !== 'shop';
+    $('viewCart').hidden = v !== 'cart';
+    $('viewDone').hidden = v !== 'done';
+    updateCartBits();
+    if (prev !== v) {
+      if (v === 'shop') requestAnimationFrame(function () { window.scrollTo(0, shopScroll); });
+      else { window.scrollTo(0, 0); var h = $(v === 'cart' ? 'cartTitle' : 'doneTitle'); if (h) h.focus({ preventScroll: true }); }
+    }
+  }
+  function go(hash) {
+    if (location.hash.slice(1) === hash) route(); else location.hash = hash;
+  }
+  function route() {
+    var h = decodeURIComponent(location.hash.slice(1));
+    if (h.indexOf('toode-') === 0) { if (view !== 'shop') show('shop'); if (loaded) openDetail(h.slice(6)); return; }
+    closeDetail();
+    if (h === 'ostukorv') { renderCart(); show('cart'); }
+    else if (h === 'aitah' && lastOrder) { renderDone(); show('done'); }
+    else show('shop');
+  }
+  window.addEventListener('hashchange', route);
+
+  /* ---------- Klõpsud ---------- */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go],[data-step],[data-add],[data-open],[data-nav],[data-dnav],[data-dstep],[data-thumb],[data-cstep],[data-remove],[data-copy]');
+    if (!t) return;
+    var d = t.dataset;
+    if (d.go !== undefined) { e.preventDefault(); go(d.go); return; }
+    if (d.step) {
+      var q = Math.max(1, Math.min(MAX_QTY, (cardQty[d.pid] || 1) + Number(d.step)));
+      cardQty[d.pid] = q; setStepper(t.parentNode, q); return;
+    }
+    if (d.add) { addToCart(d.add, cardQty[d.add] || 1, t); cardQty[d.add] = 1; var st = t.parentNode.querySelector('.stepper'); if (st) setStepper(st, 1); return; }
+    if (d.open) { detailFromApp = true; go('toode-' + d.open); return; }
+    if (d.nav) { setCardImg(d.pid, Number(d.nav)); return; }
+    if (d.dnav) { moveDetail(Number(d.dnav)); return; }
+    if (d.thumb) { detailIdx = Number(d.thumb); showDetailImg(); return; }
+    if (d.dstep) { detailQty = Math.max(1, Math.min(MAX_QTY, detailQty + Number(d.dstep))); setStepper(t.parentNode, detailQty); return; }
+    if (d.cstep) { changeCartQty(d.pid, Number(d.cstep), t.parentNode); return; }
+    if (d.remove) { removeFromCart(d.remove); return; }
+    if (d.copy) { copyText(d.copy, t); return; }
+  });
+  $('dClose').addEventListener('click', requestCloseDetail);
+  $('dAdd').addEventListener('click', function () {
+    var id = detailId; if (!id) return;
+    addToCart(id, detailQty, this);
+    detailQty = 1; setStepper($('dQty').parentNode, 1);
+  });
+  $('detail').addEventListener('click', function (e) { if (e.target === this) requestCloseDetail(); });
+  document.addEventListener('keydown', function (e) {
+    if ($('detail').hidden) return;
+    if (e.key === 'Escape') requestCloseDetail();
+    else if (e.key === 'ArrowLeft') moveDetail(-1);
+    else if (e.key === 'ArrowRight') moveDetail(1);
+    else if (e.key === 'Tab') { // fookus jääb detailvaate sisse
+      var f = $('detail').querySelectorAll('button:not([hidden]):not(:disabled)'), a = f[0], z = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+      else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+    }
+  });
+
+  // Pühkimine piltidel (telefon ja tahvel)
+  function onSwipe(root, sel, fn) {
+    var x0 = null, y0 = 0, el = null;
+    root.addEventListener('touchstart', function (e) { el = e.target.closest(sel); if (!el) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    root.addEventListener('touchend', function (e) {
+      if (x0 === null || !el) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) fn(el, dx < 0 ? 1 : -1);
+      x0 = null;
+    }, { passive: true });
+  }
+  onSwipe($('grid'), '.card-photo', function (el, dir) { setCardImg(el.closest('.card').dataset.id, dir); });
+  onSwipe($('dMain'), '.d-main', function (el, dir) { moveDetail(dir); });
+
+  /* ---------- Käivitus ---------- */
+  if (DEMO) { $('demoNote').hidden = false; document.body.classList.add('demo'); }
+  route();
+  load();
+})();
+</script>
+</body>
+</html>

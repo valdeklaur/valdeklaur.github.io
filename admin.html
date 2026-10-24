@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Poe haldus</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap">
+<style>
+/* Layout: üks veerg, sakid Tooted / Tellimused / Seaded; toode avaneb muutmiseks oma rea all */
+:root{
+  --paper:#f5f5ef; --surface:#ffffff; --ink:#1b211e; --muted:#4a534e;
+  --line:#d9dbd0; --line-strong:#87928b; --photo:#e9eae1;
+  --pine:#3e5d3b; --pine-ink:#ffffff; --pine-soft:#e3e8dc;
+  --honey:#f0c048; --honey-ink:#2a2105;
+  --danger:#a3271c; --danger-soft:#fbeae7; --focus:#0b57d0;
+  --display:"Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+  --body:"Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+  --r:14px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#111513; --surface:#1a201d; --ink:#eef1ec; --muted:#b6bfb9;
+  --line:#343d38; --line-strong:#6f7b74; --photo:#242b27;
+  --pine:#a9c591; --pine-ink:#142010; --pine-soft:#25311f;
+  --honey:#f0c048; --honey-ink:#2a2105; --danger:#ff8f80; --danger-soft:#3b1c18; --focus:#8ab4ff;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#111513; --surface:#1a201d; --ink:#eef1ec; --muted:#b6bfb9;
+  --line:#343d38; --line-strong:#6f7b74; --photo:#242b27;
+  --pine:#a9c591; --pine-ink:#142010; --pine-soft:#25311f;
+  --honey:#f0c048; --honey-ink:#2a2105; --danger:#ff8f80; --danger-soft:#3b1c18; --focus:#8ab4ff;
+  color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+b,strong,th,optgroup{font-weight:400}
+[hidden]{display:none!important}
+html{font-size:clamp(17px, 0.4vw + 15px, 19px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+img{max-width:100%;display:block}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;letter-spacing:-.015em;line-height:1.2;margin:0;text-wrap:balance}
+.wrap{max-width:1100px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 22px;border-radius:12px;border:2px solid transparent;font-weight:400;font-size:1.05rem;cursor:pointer;text-decoration:none;line-height:1.15;text-align:center}
+.btn.primary{background:var(--pine);color:var(--pine-ink)}
+.btn.ghost{background:var(--surface);border-color:var(--line-strong);color:var(--ink)}
+.btn.danger{background:var(--surface);border-color:var(--danger);color:var(--danger)}
+.btn.danger.solid{background:var(--danger);color:var(--surface)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.icon-btn{width:50px;height:50px;border-radius:10px;border:2px solid var(--line-strong);background:var(--surface);display:inline-grid;place-items:center;cursor:pointer;font-size:1.3rem;line-height:1}
+.icon-btn:disabled{opacity:.3;cursor:default}
+
+/* Sisselogimine */
+.login{min-height:100vh;display:grid;place-items:center;padding-block:32px}
+.login-box{width:min(460px,100%);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;display:flex;flex-direction:column;gap:18px}
+.login-box h1{font-size:1.7rem}
+
+/* Päis ja sakid */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding-block:12px}
+.top-title{font-family:var(--display);font-size:1.35rem;font-weight:400}
+.top-title span{color:var(--muted);font-family:var(--body);font-weight:400;font-size:1rem}
+.top-actions{display:flex;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px}
+.tab{min-height:52px;padding:0 20px;border-radius:12px;border:2px solid var(--line);background:var(--paper);font-weight:400;font-size:1.05rem;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--pine);border-color:var(--pine);color:var(--pine-ink)}
+
+main{padding-block:24px 80px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.sec-head h1{font-size:1.9rem}
+.lead{color:var(--muted);margin:0 0 20px;max-width:65ch}
+.demo-note{margin:0 0 20px;padding:12px 16px;border-radius:12px;background:var(--honey);color:var(--honey-ink)}
+
+/* Tootenimekiri */
+.plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.prow{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.prow.open{border-color:var(--pine);border-width:2px}
+.prow-head{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px}
+.prow-head .thumb{width:88px;height:88px;border-radius:10px;object-fit:cover;background:var(--photo)}
+.noimg{display:grid;place-items:center;color:var(--muted);font-size:.85rem;text-align:center;background:var(--photo)}
+.prow-info{min-width:0;display:flex;flex-direction:column;gap:4px}
+.prow-info h3{font-size:1.25rem;font-weight:700;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta strong{color:var(--ink)}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.9rem;font-weight:400;background:var(--pine-soft);color:var(--ink)}
+.chip.off{background:var(--danger-soft);color:var(--danger)}
+.prow-btns{display:flex;gap:8px;align-items:center}
+@media (max-width:640px){
+  .prow-head{grid-template-columns:64px minmax(0,1fr)}
+  .prow-head .thumb{width:64px;height:64px}
+  .prow-btns{grid-column:1/-1}
+  .prow-btns .btn{flex:1}
+}
+
+/* Toote muutmine */
+.editor{border-top:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:20px;background:var(--surface)}
+.field label,.field .label{display:block;font-weight:400;font-size:1.05rem;margin-bottom:6px}
+.hint{margin:0 0 8px;color:var(--muted);font-size:.95rem}
+.field input[type=text],.field input[type=email],.field input[type=password],.field input:not([type]),.field textarea{width:100%;min-height:54px;padding:10px 14px;border:2px solid var(--line-strong);border-radius:10px;background:var(--surface);font-size:1.1rem}
+.field textarea{min-height:180px;resize:vertical;line-height:1.45}
+.field input:focus,.field textarea:focus{border-color:var(--pine);outline:3px solid var(--pine-soft);outline-offset:0}
+.two{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+@media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}}
+.check{display:flex;align-items:center;gap:12px;min-height:54px;font-weight:400;font-size:1.05rem;cursor:pointer}
+.check input{width:28px;height:28px;accent-color:var(--pine)}
+
+.pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.pic{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--photo);display:flex;flex-direction:column}
+.pic .img{aspect-ratio:1;position:relative}
+.pic .img img,.pic .img .noimg{width:100%;height:100%;object-fit:cover}
+.pic .tag{position:absolute;left:6px;top:6px;padding:2px 8px;border-radius:999px;background:var(--pine);color:var(--pine-ink);font-size:.8rem;font-weight:400}
+.pic .ctrl{display:flex;justify-content:space-between;gap:4px;padding:6px;background:var(--surface)}
+.pic .ctrl .icon-btn{width:44px;height:44px;font-size:1.1rem}
+.pic .ctrl .del{color:var(--danger);border-color:var(--danger)}
+.addpic{aspect-ratio:auto;min-height:150px;border:2px dashed var(--line-strong);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:var(--paper);font-weight:400;text-align:center;padding:12px}
+.addpic span{font-size:2rem;line-height:1}
+.addpic.disabled{opacity:.45;cursor:not-allowed}
+.upload-status{margin:10px 0 0;font-weight:400;color:var(--pine)}
+.upload-status.err{color:var(--danger)}
+
+.ed-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-top:6px;border-top:1px solid var(--line)}
+.ed-actions .spacer{flex:1}
+.dirty{color:var(--danger);font-weight:400}
+.confirm{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px;border-radius:12px;background:var(--danger-soft)}
+.confirm p{margin:0;font-weight:400;color:var(--danger);flex-basis:100%}
+
+/* Tellimused */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:.98rem}
+th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--paper)}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:400}
+td .sub{display:block;color:var(--muted)}
+td.items{white-space:pre-line}
+
+/* Seaded */
+.settings{display:flex;flex-direction:column;gap:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;max-width:760px}
+.settings h2{font-size:1.35rem;padding-top:8px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:40;max-width:calc(100vw - 32px);padding:14px 22px;border-radius:12px;background:var(--ink);color:var(--paper);font-weight:400;box-shadow:0 10px 30px #0004}
+.toast.err{background:var(--danger);color:var(--surface)}
+.empty{padding:28px;background:var(--surface);border:1px dashed var(--line-strong);border-radius:var(--r);color:var(--muted)}
+.loading{padding:28px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- Sisselogimine -->
+<section class="login wrap" id="loginView">
+  <form class="login-box" id="loginForm" novalidate>
+    <h1>Poe haldus</h1>
+    <p class="hint" style="margin:0">Sisestage halduse parool. Parooli saab muuta Google Sheetsi lehel „Seaded“ või siin seadete all.</p>
+    <div class="field">
+      <label for="pw">Parool</label>
+      <input id="pw" type="password" autocomplete="current-password">
+    </div>
+    <p class="upload-status err" id="loginErr" hidden></p>
+    <button class="btn primary" id="loginBtn" type="submit">Logi sisse</button>
+    <a class="btn ghost" href="index.html">Mine poodi</a>
+  </form>
+</section>
+
+<!-- Haldus -->
+<div id="appView" hidden>
+  <header class="top">
+    <div class="wrap">
+      <div class="top-in">
+        <div class="top-title"><span id="hdrName" style="font-weight:700;color:var(--ink)">Valdek Laur</span> · haldus</div>
+        <div class="top-actions">
+          <a class="btn ghost" href="index.html" target="_blank" rel="noopener">Ava pood ↗</a>
+          <button class="btn ghost" id="logoutBtn">Logi välja</button>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Haldus">
+        <button class="tab" role="tab" data-tab="products" aria-selected="true">Tooted</button>
+        <button class="tab" role="tab" data-tab="orders" aria-selected="false">Tellimused</button>
+        <button class="tab" role="tab" data-tab="settings" aria-selected="false">Seaded</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p class="demo-note" id="demoNote" hidden><strong>Näidisrežiim:</strong> muudatused kaovad lehe sulgemisel. Päris poe jaoks ühendage Google Sheets (vt JUHEND).</p>
+
+    <section id="tab-products">
+      <div class="sec-head">
+        <h1>Tooted</h1>
+        <button class="btn primary" id="newBtn">+ Lisa uus toode</button>
+      </div>
+      <p class="lead">Poes näidatakse tooteid selles järjekorras. Järjekorda saab muuta nooltega ↑ ↓. Igale tootele saab lisada kuni 13 pilti.</p>
+      <ul class="plist" id="plist"><li class="loading">Laen tooteid…</li></ul>
+    </section>
+
+    <section id="tab-orders" hidden>
+      <div class="sec-head">
+        <h1>Tellimused</h1>
+        <div class="top-actions">
+          <button class="btn ghost" id="refreshOrders">Värskenda</button>
+          <a class="btn primary" id="sheetLink" href="#" target="_blank" rel="noopener" hidden>Ava Google Sheetsis ↗</a>
+        </div>
+      </div>
+      <p class="lead">Siin on viimased 50 tellimust, uuemad eespool. Kõik tellimused on Google Sheetsi lehel „Tellimused“, kus saab muuta ka staatust (nt „Makstud“, „Saadetud“).</p>
+      <div id="ordersBox"><p class="loading">Laen tellimusi…</p></div>
+    </section>
+
+    <section id="tab-settings" hidden>
+      <div class="sec-head"><h1>Seaded</h1></div>
+      <p class="lead">Need andmed näeb tellija poes ja kinnituskirjas.</p>
+      <form class="settings" id="setForm" novalidate>
+        <h2>Pood</h2>
+        <div class="field"><label for="s_poe_nimi">Poe nimi</label><input id="s_poe_nimi" type="text" maxlength="60"></div>
+        <div class="field"><label for="s_tutvustus">Lühike tutvustus</label><p class="hint">Näidatakse päises poe nime all.</p><input id="s_tutvustus" type="text" maxlength="120"></div>
+        <div class="field"><label for="s_saatmistasu">Saatmistasu pakiautomaati (€)</label><p class="hint">Lisandub igale tellimusele üks kord. 0 tähendab tasuta saatmist.</p><input id="s_saatmistasu" type="text" inputmode="decimal" maxlength="10"></div>
+        <h2>Maksmine</h2>
+        <div class="field"><label for="s_saaja_nimi">Makse saaja nimi</label><input id="s_saaja_nimi" type="text" maxlength="80"></div>
+        <div class="field"><label for="s_iban">Pangakonto (IBAN)</label><input id="s_iban" type="text" maxlength="40"></div>
+        <div class="field"><label for="s_makse_tahtaeg_paevi">Maksetähtaeg päevades</label><input id="s_makse_tahtaeg_paevi" type="text" inputmode="numeric" maxlength="3"></div>
+        <div class="field"><label for="s_makse_lisainfo">Lisainfo maksjale</label><p class="hint">Näiteks: „Saadame paki teele pärast makse laekumist.“</p><input id="s_makse_lisainfo" type="text" maxlength="200"></div>
+        <h2>Teavitused ja parool</h2>
+        <div class="field"><label for="s_teavituse_epost">Kuhu saata teade uue tellimuse kohta</label><p class="hint">Tühjaks jättes saadetakse teade selle Google'i konto aadressile, millega Sheets on loodud.</p><input id="s_teavituse_epost" type="email" maxlength="120"></div>
+        <div class="field"><label for="s_uus_parool">Uus halduse parool</label><p class="hint">Jätke tühjaks, kui te ei soovi parooli muuta. Vähemalt 6 märki.</p><input id="s_uus_parool" type="password" autocomplete="new-password" maxlength="60"></div>
+        <div><button class="btn primary" type="submit" id="setSave">Salvesta seaded</button></div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<input type="file" id="fileIn" accept="image/*" multiple hidden>
+
+<script src="config.js"></script>
+<script src="demo-data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var CFG = window.POOD_CONFIG || {};
+  var API = String(CFG.API_URL || '').trim();
+  var DEMO = !API;
+  var MAX_IMAGES = 13;
+  var eurFmt = new Intl.NumberFormat('et-EE', { style: 'currency', currency: 'EUR' });
+  function eur(n) { return eurFmt.format(Number(n) || 0); }
+  function num(v) { var n = parseFloat(String(v == null ? '' : v).replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : NaN; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function $(id) { return document.getElementById(id); }
+  function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { return null; } }
+  function isUrl(ref) { return /^(https?:|data:|blob:)/.test(ref); }
+  function imgUrl(ref, w) { return isUrl(ref) ? ref : 'https://lh3.googleusercontent.com/d/' + encodeURIComponent(ref) + '=w' + (w || 600); }
+  function imgTag(ref, w, cls) {
+    if (!ref) return '<div class="noimg ' + (cls || '') + '">Pilt puudub</div>';
+    return '<img src="' + esc(imgUrl(ref, w)) + '" data-ref="' + esc(ref) + '" data-w="' + w + '" alt=""' + (cls ? ' class="' + cls + '"' : '') + ' loading="lazy">';
+  }
+  document.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && t.dataset.ref && !isUrl(t.dataset.ref) && !t.dataset.fb) {
+      t.dataset.fb = '1'; t.src = 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(t.dataset.ref) + '&sz=w' + (t.dataset.w || 600);
+    }
+  }, true);
+
+  var toastT;
+  function toast(msg, isErr) {
+    var t = $('toast'); t.textContent = msg; t.classList.toggle('err', !!isErr); t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, isErr ? 7000 : 3500);
+  }
+
+  /* ---------- Ühendus Google Sheetsiga ---------- */
+  var password = ss('vl_admin_pw') || '';
+  var demoDb = null;
+  function call(action, extra) {
+    if (DEMO) return demoCall(action, extra || {});
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action: action, password: password }, extra || {}))
+    }).then(function (r) { return r.json(); }, function () { throw new Error('Ühendus ei õnnestunud. Kontrollige internetiühendust.'); })
+      .then(function (j) { if (!j.ok) throw new Error(j.error || 'Tundmatu viga'); return j; });
+  }
+  function demoCall(action, x) {
+    if (!demoDb) demoDb = {
+      products: JSON.parse(JSON.stringify(window.DEMO_PRODUCTS || [])),
+      settings: Object.assign({ teavituse_epost: '' }, window.DEMO_SETTINGS || {}),
+      orders: [
+        { no: 1002, time: '24.10.2026 14:05', name: 'Näidis Tellija', email: 'tellija@post.ee', phone: '5123 4567', locker: 'Omniva, Tartu Lõunakeskus', items: 'Kalender 2027 × 2\nLauamäng × 1', total: 62.5, status: 'Uus' },
+        { no: 1001, time: '23.10.2026 09:41', name: 'Teine Näidis', email: 'teine@post.ee', phone: '+372 5555 1234', locker: 'SmartPost, Pärnu Kaubamajakas', items: 'Kalender 2027 × 1', total: 18.5, status: 'Makstud' }
+      ]
+    };
+    var db = demoDb;
+    return new Promise(function (res) { setTimeout(res, 250); }).then(function () {
+      switch (action) {
+        case 'login': return { ok: true };
+        case 'adminData': return { ok: true, products: JSON.parse(JSON.stringify(db.products)), settings: Object.assign({}, db.settings), sheetUrl: '' };
+        case 'orders': return { ok: true, orders: db.orders };
+        case 'saveProduct':
+          var p = x.product;
+          if (!p.id) { p.id = 'demo' + Date.now(); p.order = db.products.length + 1; db.products.push(p); }
+          else db.products = db.products.map(function (q) { return q.id === p.id ? Object.assign(q, p) : q; });
+          return { ok: true, product: p };
+        case 'deleteProduct': db.products = db.products.filter(function (q) { return q.id !== x.id; }); return { ok: true };
+        case 'reorder': db.products.sort(function (a, b) { return x.ids.indexOf(a.id) - x.ids.indexOf(b.id); }); return { ok: true };
+        case 'uploadImage': return { ok: true, id: 'data:image/jpeg;base64,' + x.data };
+        case 'saveSettings': Object.assign(db.settings, x.settings); return { ok: true, settings: db.settings };
+      }
+      return { ok: true };
+    });
+  }
+
+  /* ---------- Sisselogimine ---------- */
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pw = $('pw').value, btn = $('loginBtn'), err = $('loginErr');
+    if (!pw && !DEMO) { err.textContent = 'Palun sisestage parool.'; err.hidden = false; return; }
+    password = pw; btn.disabled = true; btn.textContent = 'Kontrollin…'; err.hidden = true;
+    call('login').then(function () { ss('vl_admin_pw', pw); startApp(); })
+      .catch(function (x) { err.textContent = x.message; err.hidden = false; $('pw').focus(); })
+      .then(function () { btn.disabled = false; btn.textContent = 'Logi sisse'; });
+  });
+  $('logoutBtn').addEventListener('click', function () {
+    if (dirty && !leaveOk()) return;
+    ss('vl_admin_pw', null); password = ''; location.reload();
+  });
+
+  /* ---------- Andmed ---------- */
+  var products = [], settings = {}, sheetUrl = '';
+  var editing = null; // { id: 'new' | toote id, draft: {...} }
+  var dirty = false, uploading = false, confirmDelete = false, leaveWarned = false;
+
+  function startApp() {
+    $('loginView').hidden = true; $('appView').hidden = false;
+    if (DEMO) $('demoNote').hidden = false;
+    loadAll();
+  }
+  function loadAll() {
+    return call('adminData').then(function (j) {
+      products = (j.products || []).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+      settings = j.settings || {};
+      sheetUrl = j.sheetUrl || '';
+      $('hdrName').textContent = settings.poe_nimi || 'Pood';
+      $('sheetLink').hidden = !sheetUrl; if (sheetUrl) $('sheetLink').href = sheetUrl;
+      fillSettings();
+      renderList();
+    }).catch(function (x) {
+      if (/parool/i.test(x.message)) { ss('vl_admin_pw', null); location.reload(); return; }
+      $('plist').innerHTML = '<li class="empty">Andmeid ei õnnestunud laadida: ' + esc(x.message) + '</li>';
+    });
+  }
+
+  /* ---------- Sakid ---------- */
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var name = t.dataset.tab;
+      document.querySelectorAll('.tab').forEach(function (x) { x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+      ['products', 'orders', 'settings'].forEach(function (n) { $('tab-' + n).hidden = n !== name; });
+      if (name === 'orders') loadOrders();
+    });
+  });
+
+  /* ---------- Tootenimekiri ---------- */
+  function renderList() {
+    var list = products.slice();
+    if (editing && editing.id === 'new') list.unshift(null);
+    if (!list.length) { $('plist').innerHTML = '<li class="empty">Tooteid veel ei ole. Vajutage „+ Lisa uus toode“.</li>'; return; }
+    $('plist').innerHTML = list.map(function (p, i) {
+      if (!p) return '<li class="prow open" data-id="new"><div class="prow-head"><div class="noimg thumb">Uus</div><div class="prow-info"><h3>Uus toode</h3><div class="meta">Täitke väljad ja vajutage „Salvesta“.</div></div><div></div></div>' + editorHTML() + '</li>';
+      var open = editing && editing.id === p.id, idx = products.indexOf(p);
+      return '<li class="prow' + (open ? ' open' : '') + '" data-id="' + esc(p.id) + '">' +
+        '<div class="prow-head">' + imgTag((p.images || [])[0], 200, 'thumb') +
+          '<div class="prow-info"><h3>' + esc(p.title || '(nimeta)') + '</h3>' +
+            '<div class="meta"><strong>' + eur(p.price) + '</strong><span>' + (p.images || []).length + ' / ' + MAX_IMAGES + ' pilti</span>' +
+            '<span class="chip' + (p.visible === false ? ' off' : '') + '">' + (p.visible === false ? 'Peidetud' : 'Nähtav poes') + '</span></div></div>' +
+          '<div class="prow-btns">' +
+            '<button class="icon-btn" data-move="-1" data-id="' + esc(p.id) + '" aria-label="Tõsta ettepoole"' + (idx === 0 || editing ? ' disabled' : '') + '>↑</button>' +
+            '<button class="icon-btn" data-move="1" data-id="' + esc(p.id) + '" aria-label="Tõsta tahapoole"' + (idx === products.length - 1 || editing ? ' disabled' : '') + '>↓</button>' +
+            (open ? '' : '<button class="btn ghost" data-edit="' + esc(p.id) + '">Muuda</button>') +
+          '</div></div>' + (open ? editorHTML() : '') + '</li>';
+    }).join('');
+  }
+
+  function editorHTML() {
+    var d = editing.draft, imgs = d.images, full = imgs.length >= MAX_IMAGES;
+    return '<div class="editor" id="editor">' +
+      '<div class="two">' +
+        '<div class="field"><label for="eTitle">Pealkiri</label><input id="eTitle" type="text" maxlength="100" value="' + esc(d.title) + '"></div>' +
+        '<div class="field"><label for="ePrice">Hind (€)</label><input id="ePrice" type="text" inputmode="decimal" maxlength="10" value="' + esc(d.priceText) + '"><p class="hint" style="margin:6px 0 0">Näiteks 15 või 12,50</p></div>' +
+      '</div>' +
+      '<div class="field"><label for="eDesc">Tootekirjeldus</label><p class="hint">Tühi rida teeb uue lõigu.</p><textarea id="eDesc" maxlength="5000">' + esc(d.description) + '</textarea></div>' +
+      '<label class="check"><input type="checkbox" id="eVisible"' + (d.visible ? ' checked' : '') + '> Näita toodet poes</label>' +
+      '<div class="field"><span class="label">Pildid (' + imgs.length + ' / ' + MAX_IMAGES + ')</span><p class="hint">Esimene pilt on põhipilt, mida näidatakse tootekaardil. Järjekorda saab muuta nooltega ‹ ›.</p>' +
+        '<div class="pics">' + imgs.map(function (ref, i) {
+          return '<div class="pic"><div class="img">' + imgTag(ref, 400) + (i === 0 ? '<span class="tag">Põhipilt</span>' : '') + '</div>' +
+            '<div class="ctrl"><button type="button" class="icon-btn" data-pmove="-1" data-i="' + i + '" aria-label="Pilt ettepoole"' + (i === 0 ? ' disabled' : '') + '>‹</button>' +
+            '<button type="button" class="icon-btn del" data-pdel="' + i + '" aria-label="Eemalda pilt ' + (i + 1) + '">✕</button>' +
+            '<button type="button" class="icon-btn" data-pmove="1" data-i="' + i + '" aria-label="Pilt tahapoole"' + (i === imgs.length - 1 ? ' disabled' : '') + '>›</button></div></div>';
+        }).join('') +
+        '<button type="button" class="addpic' + (full || uploading ? ' disabled' : '') + '" id="addPic"' + (full || uploading ? ' disabled' : '') + '><span>+</span>' + (full ? 'Rohkem pilte ei mahu' : 'Lisa pilte') + '</button>' +
+        '</div><p class="upload-status" id="upStatus" hidden></p></div>' +
+      (confirmDelete ? '<div class="confirm"><p>Kas kustutada toode „' + esc(d.title || 'Uus toode') + '“? Seda ei saa tagasi võtta.</p>' +
+        '<button type="button" class="btn danger solid" id="delYes">Jah, kustuta</button><button type="button" class="btn ghost" id="delNo">Ei, jäta alles</button></div>' : '') +
+      '<div class="ed-actions">' +
+        '<button type="button" class="btn primary" id="saveBtn"' + (uploading ? ' disabled' : '') + '>Salvesta</button>' +
+        '<button type="button" class="btn ghost" id="cancelBtn">Loobu</button>' +
+        '<span class="dirty" id="dirtyMark"' + (dirty ? '' : ' hidden') + '>Salvestamata muudatused</span>' +
+        '<span class="spacer"></span>' +
+        (editing.id !== 'new' ? '<button type="button" class="btn danger" id="delBtn">Kustuta toode</button>' : '') +
+      '</div></div>';
+  }
+
+  function startEdit(id) {
+    if (editing) {
+      if (dirty) { toast('Salvestage või loobuge enne teise toote muutmist.', true); var ed = $('editor'); if (ed) ed.scrollIntoView({ block: 'center' }); return; }
+    }
+    var p = id === 'new' ? { title: '', price: '', description: '', images: [], visible: true } : products.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    editing = { id: id, draft: { title: p.title || '', priceText: p.price === '' ? '' : String(p.price).replace('.', ','), description: p.description || '', images: (p.images || []).slice(), visible: p.visible !== false } };
+    dirty = false; confirmDelete = false;
+    renderList();
+    var el = $('editor'); if (el) { el.parentNode.scrollIntoView({ block: 'start' }); window.scrollBy(0, -140); $('eTitle').focus({ preventScroll: true }); }
+  }
+  function stopEdit() { editing = null; dirty = false; confirmDelete = false; renderList(); }
+  function markDirty() { dirty = true; var m = $('dirtyMark'); if (m) m.hidden = false; }
+  function readDraft() {
+    if (!editing || !$('eTitle')) return;
+    var d = editing.draft;
+    d.title = $('eTitle').value; d.priceText = $('ePrice').value; d.description = $('eDesc').value; d.visible = $('eVisible').checked;
+  }
+  function rerenderEditor() { readDraft(); var y = window.scrollY; renderList(); window.scrollTo(0, y); }
+
+  $('newBtn').addEventListener('click', function () { startEdit('new'); });
+
+  $('plist').addEventListener('input', function (e) { if (e.target.closest('#editor')) { readDraft(); markDirty(); } });
+  $('plist').addEventListener('change', function (e) { if (e.target.id === 'eVisible') { readDraft(); markDirty(); } });
+
+  $('plist').addEventListener('click', function (e) {
+    var t = e.target.closest('button'); if (!t || t.disabled) return;
+    var d = t.dataset;
+    if (d.edit) return startEdit(d.edit);
+    if (d.move) return moveProduct(d.id, Number(d.move));
+    if (d.pmove) { var i = Number(d.i), j = i + Number(d.pmove), a = editing.draft.images; var tmp = a[i]; a[i] = a[j]; a[j] = tmp; markDirty(); return rerenderEditor(); }
+    if (d.pdel !== undefined) { editing.draft.images.splice(Number(d.pdel), 1); markDirty(); return rerenderEditor(); }
+    if (t.id === 'addPic') return $('fileIn').click();
+    if (t.id === 'cancelBtn') return stopEdit();
+    if (t.id === 'saveBtn') return saveProduct();
+    if (t.id === 'delBtn') { confirmDelete = true; rerenderEditor(); var y = $('delYes'); if (y) y.focus(); return; }
+    if (t.id === 'delNo') { confirmDelete = false; return rerenderEditor(); }
+    if (t.id === 'delYes') return deleteProduct();
+  });
+
+  function saveProduct() {
+    readDraft();
+    var d = editing.draft, price = num(d.priceText);
+    if (!d.title.trim()) { toast('Palun kirjutage tootele pealkiri.', true); $('eTitle').focus(); return; }
+    if (!(price >= 0)) { toast('Palun kirjutage hind numbrina, näiteks 15 või 12,50.', true); $('ePrice').focus(); return; }
+    var btn = $('saveBtn'); btn.disabled = true; btn.textContent = 'Salvestan…';
+    var payload = { title: d.title.trim(), price: Math.round(price * 100) / 100, description: d.description.trim(), images: d.images.slice(0, MAX_IMAGES), visible: d.visible };
+    if (editing.id !== 'new') payload.id = editing.id;
+    call('saveProduct', { product: payload }).then(function () {
+      dirty = false; editing = null; confirmDelete = false;
+      toast('Salvestatud. Muudatus on poes nähtav.');
+      return loadAll();
+    }).catch(function (x) { toast('Salvestamine ei õnnestunud: ' + x.message, true); btn.disabled = false; btn.textContent = 'Salvesta'; });
+  }
+  function deleteProduct() {
+    var id = editing.id;
+    call('deleteProduct', { id: id }).then(function () {
+      dirty = false; editing = null; confirmDelete = false; toast('Toode kustutatud.'); return loadAll();
+    }).catch(function (x) { toast('Kustutamine ei õnnestunud: ' + x.message, true); });
+  }
+  function moveProduct(id, dir) {
+    var i = -1; products.forEach(function (p, k) { if (p.id === id) i = k; });
+    var j = i + dir; if (i < 0 || j < 0 || j >= products.length) return;
+    var tmp = products[i]; products[i] = products[j]; products[j] = tmp;
+    renderList();
+    call('reorder', { ids: products.map(function (p) { return p.id; }) })
+      .then(function () { toast('Järjekord salvestatud.'); })
+      .catch(function (x) { toast('Järjekorda ei õnnestunud salvestada: ' + x.message, true); loadAll(); });
+  }
+
+  /* ---------- Piltide üleslaadimine ---------- */
+  function resizeImage(file) {
+    var MAX = 1600;
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var s = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+        var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.86).split(',')[1]);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('Faili „' + file.name + '“ ei õnnestunud avada. Kasutage JPG või PNG pilti.')); };
+      img.src = url;
+    });
+  }
+  $('fileIn').addEventListener('change', function () {
+    var files = Array.prototype.slice.call(this.files || []); this.value = '';
+    if (!editing || !files.length) return;
+    readDraft();
+    var room = MAX_IMAGES - editing.draft.images.length;
+    var skipped = Math.max(0, files.length - room);
+    files = files.slice(0, Math.max(0, room));
+    if (!files.length) { toast('Rohkem kui 13 pilti ei saa lisada.', true); return; }
+    uploading = true; rerenderEditor();
+    var n = 0, failed = 0;
+    function status(msg, err) { var s = $('upStatus'); if (s) { s.textContent = msg; s.hidden = false; s.classList.toggle('err', !!err); } }
+    status('Laen üles pilti 1 / ' + files.length + '…');
+    files.reduce(function (chain, f) {
+      return chain.then(function () {
+        status('Laen üles pilti ' + (n + 1) + ' / ' + files.length + '…');
+        return resizeImage(f).then(function (b64) {
+          return call('uploadImage', { name: f.name, data: b64 });
+        }).then(function (j) {
+          if (editing) { editing.draft.images.push(j.id); markDirty(); }
+        }).catch(function (x) { failed++; toast(x.message, true); }).then(function () { n++; });
+      });
+    }, Promise.resolve()).then(function () {
+      uploading = false; rerenderEditor();
+      var ok = files.length - failed;
+      status((ok ? ok + ' pilti lisatud. Vajutage „Salvesta“, et need poes nähtavale tuleksid.' : 'Pilte ei õnnestunud lisada.') +
+        (skipped ? ' ' + skipped + ' pilti jäi lisamata, sest ühel tootel saab olla kuni 13 pilti.' : ''), !ok || skipped);
+    });
+  });
+
+  /* ---------- Tellimused ---------- */
+  function loadOrders() {
+    $('ordersBox').innerHTML = '<p class="loading">Laen tellimusi…</p>';
+    call('orders').then(function (j) {
+      var o = j.orders || [];
+      if (!o.length) { $('ordersBox').innerHTML = '<p class="empty">Tellimusi veel ei ole.</p>'; return; }
+      $('ordersBox').innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Nr</th><th>Aeg</th><th>Tellija</th><th>Pakiautomaat</th><th>Tooted</th><th style="text-align:right">Kokku</th><th>Staatus</th></tr></thead><tbody>' +
+        o.map(function (r) {
+          return '<tr><td><strong>' + esc(r.no) + '</strong></td><td>' + esc(r.time) + '</td>' +
+            '<td><strong>' + esc(r.name) + '</strong><span class="sub">' + esc(r.email) + '</span><span class="sub">' + esc(r.phone) + '</span></td>' +
+            '<td>' + esc(r.locker) + '</td><td class="items">' + esc(r.items) + '</td><td class="num">' + eur(r.total) + '</td><td>' + esc(r.status) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }).catch(function (x) { $('ordersBox').innerHTML = '<p class="empty">Tellimusi ei õnnestunud laadida: ' + esc(x.message) + '</p>'; });
+  }
+  $('refreshOrders').addEventListener('click', loadOrders);
+
+  /* ---------- Seaded ---------- */
+  var SKEYS = ['poe_nimi', 'tutvustus', 'saatmistasu', 'saaja_nimi', 'iban', 'makse_tahtaeg_paevi', 'makse_lisainfo', 'teavituse_epost'];
+  function fillSettings() {
+    SKEYS.forEach(function (k) { var v = settings[k]; $('s_' + k).value = v == null ? '' : (k === 'saatmistasu' ? String(v).replace('.', ',') : v); });
+    $('s_uus_parool').value = '';
+  }
+  $('setForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = {};
+    SKEYS.forEach(function (k) { s[k] = $('s_' + k).value.trim(); });
+    var fee = num(s.saatmistasu || '0');
+    if (!(fee >= 0)) { toast('Saatmistasu peab olema number, näiteks 3,50 või 0.', true); $('s_saatmistasu').focus(); return; }
+    s.saatmistasu = Math.round(fee * 100) / 100;
+    var np = $('s_uus_parool').value;
+    if (np) { if (np.length < 6) { toast('Uus parool peab olema vähemalt 6 märki.', true); return; } s.admin_parool = np; }
+    var btn = $('setSave'); btn.disabled = true; btn.textContent = 'Salvestan…';
+    call('saveSettings', { settings: s }).then(function () {
+      if (np) { password = np; ss('vl_admin_pw', np); }
+      toast('Seaded salvestatud.');
+      return loadAll();
+    }).catch(function (x) { toast('Salvestamine ei õnnestunud: ' + x.message, true); })
+      .then(function () { btn.disabled = false; btn.textContent = 'Salvesta seaded'; });
+  });
+
+  function leaveOk() {
+    if (leaveWarned) return true;
+    leaveWarned = true;
+    toast('Teil on salvestamata muudatusi. Vajutage uuesti, kui soovite need kaotada.', true);
+    return false;
+  }
+  window.addEventListener('beforeunload', function (e) { if (dirty || uploading) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* ---------- Käivitus ---------- */
+  if (DEMO) { $('pw').placeholder = 'Näidisrežiimis sobib iga parool'; }
+  if (password || DEMO && ss('vl_admin_pw') !== null) startApp();
+})();
+</script>
+</body>
+</html>
